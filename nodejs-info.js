@@ -74,6 +74,10 @@ const template = `<!doctype html>
         {{#each process.versions}}
         <tr><td>{{@key}}</td><td>{{this}}</td></tr>
         {{/each}}
+        <tr><td colspan="2"><h2>Node process env</h2></td></tr>
+        {{#each process.env}}
+        <tr><td>{{@key}}</td><td>{{this}}</td></tr>
+        {{/each}}
 
         {{#if process.env.NODE_ENV}}
         <tr><td colspan="2">&nbsp;</td></tr>
@@ -85,6 +89,7 @@ const template = `<!doctype html>
         <tr><td>method</td><td>{{request.method}}</td></tr>
         <tr><td>href</td><td>{{request.href}}</td></tr>
         <tr><td>ip</td><td>{{request.ip}}</td></tr>
+        <tr><td>remoteAddress</td><td>{{request.myip}}</td></tr>
         <tr><td colspan="2"><h3>headers</h3></td></tr>
         {{#if request.showOriginalUrl}}
         <tr><td>original url</td><td>{{request.originalUrl}}</td></tr>
@@ -169,10 +174,11 @@ function nodeinfo(req, options) {
         context.request = req;
         context.request.href = protocol + '://' + req.headers.host + req.url;
         // IP address: stackoverflow.com/questions/8107856
-        context.request.ip = req.headers['x-forwarded-for']
+        const ip = req.headers['x-forwarded-for']
             || req.connection.remoteAddress
             || req.socket.remoteAddress
             || req.connection.socket.remoteAddress;
+        context.request.myip = ip;
 
         // cookies go in separate nested table
         context.request.cookies = req.headers.cookie ? cookie.parse(req.headers.cookie) : {};
